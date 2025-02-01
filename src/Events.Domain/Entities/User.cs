@@ -8,4 +8,5 @@ public class User : BaseEntity
     public string Surname { get; set; } = null!;
     public DateTime DateOfBirth { get; set; } = DateTime.UtcNow;
     public bool isAdmin = false;
+    public virtual ICollection<EventParticipant> EventParticipants { get; set; } = [];
 }
