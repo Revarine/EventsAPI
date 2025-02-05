@@ -24,17 +24,17 @@ public class UserRepository : IUserRepository
 
     public async Task<User> Get(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Users.FirstAsync(u => u.Id == id, cancellationToken);
+        return await _eventDbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<User>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<User>> GetAll(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Users.ToListAsync(cancellationToken);
+        return await _eventDbContext.Users.Skip((page - 1) * (pageSize)).Take(pageSize).ToListAsync(cancellationToken);
     }
 
     public async Task<User> GetByEmail(string email, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Users.FirstAsync(u => u.Email == email, cancellationToken);
+        return await _eventDbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
     public async Task Update(Guid id, User entity, CancellationToken cancellationToken = default)

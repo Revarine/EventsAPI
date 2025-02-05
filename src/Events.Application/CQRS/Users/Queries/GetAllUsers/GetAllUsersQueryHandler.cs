@@ -18,7 +18,7 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumer
 
     public async Task<IEnumerable<UserDTO>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        var results = await _userRepository.GetAll(cancellationToken);
+        var results = await _userRepository.GetAll(request.page, request.pageSize, cancellationToken);
         return results.Select(u => _mapper.Map<UserDTO>(u));
     }
 } 

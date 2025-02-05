@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.EventParticipants.Commands.UpdateEventParticipant;
 
-public record UpdateEventParticipantCommand(Guid userId, Guid eventId) : IRequest<bool>, IMapFrom<EventParticipant>;
+public record UpdateEventParticipantCommand(Guid participationId, Guid userId, Guid eventId) : IRequest<bool>, IMapFrom<EventParticipant>;

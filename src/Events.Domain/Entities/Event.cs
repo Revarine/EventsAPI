@@ -9,6 +9,7 @@ public class Event : BaseEntity
     public string Category { get; set; } = null!;
     public int MaxParticipantsCount { get; set; }
     public string? ImageFileName { get; set; }
-
+    public Guid? OrganizerId { get; set; }
+    public virtual User User { get; set; } = null!;
     public virtual ICollection<EventParticipant> EventParticipants { get; set; } = [];
 }

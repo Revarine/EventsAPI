@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.Users.Commands.CreateUser;
 
-public record CreateUserCommand(string Username, string Email, string Password, string FirstName, string LastName) : IRequest<bool>, IMapFrom<User>;
+public record CreateUserCommand(string Email, string Password, string Name, string Surname, DateTime DateOfBirth) : IRequest<bool>, IMapFrom<User>;

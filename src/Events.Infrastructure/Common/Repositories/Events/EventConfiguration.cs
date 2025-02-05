@@ -19,6 +19,14 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(ev => ev.MaxParticipantsCount).IsRequired();
         builder.Property(ev => ev.ImageFileName);
 
-        builder.HasMany(ev => ev.EventParticipants).WithOne(ep => ep.Event).HasForeignKey(ep => ep.EventId);
+        builder.HasOne(ev => ev.User)
+        .WithMany(user => user.Events)
+        .HasForeignKey(ev => ev.OrganizerId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(ev => ev.EventParticipants)
+        .WithOne(ep => ep.Event)
+        .HasForeignKey(ep => ep.EventId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.Events.Commands.CreateEvent;
 
-public record CreateEventCommand(string Title, string Description, DateTime StartDate, DateTime EndDate, string Location, int MaxParticipants, Guid OrganizerId) : IRequest<bool>, IMapFrom<Event>;
+public record CreateEventCommand(string Title, string Description, DateTime EventDate, string Location, string Category, int MaxParticipantsCount, string? ImageFileName, Guid OrganizerId) : IRequest<bool>, IMapFrom<Event>;

@@ -5,6 +5,7 @@ namespace Events.Application.Common.ResponseDTO;
 
 public class EventDTO : IMapFrom<Event>
 {
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public DateTime EventDate { get; set; }
@@ -12,4 +13,5 @@ public class EventDTO : IMapFrom<Event>
     public string Category { get; set; }
     public int MaxParticipantsCount { get; set; }
     public string? ImageFileName { get; set; }
+    public Guid? OrganizerId { get; set; }
 }

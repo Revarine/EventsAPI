@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.EventParticipants.Queries.GetAllEventParticipants;
 
-public record class GetAllEventParticipantsQuery() : IRequest<IEnumerable<EventParticipantDTO>>;
+public record class GetAllEventParticipantsQuery(int page, int pageSize) : IRequest<IEnumerable<EventParticipantDTO>>;

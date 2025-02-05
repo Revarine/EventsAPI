@@ -25,17 +25,37 @@ public class EventRepository : IEventRepository
 
     public async Task<Event> Get(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Events.FirstAsync(ev => ev.Id == id, cancellationToken);
+        return await _eventDbContext.Events.FirstOrDefaultAsync(ev => ev.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<Event>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Event>> GetAll(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Events.ToListAsync(cancellationToken);
+        return await _eventDbContext.Events.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
     public async Task<Event> GetEventByTitle(string title, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.Events.FirstAsync(ev => ev.Title == title, cancellationToken);
+        return await _eventDbContext.Events.FirstOrDefaultAsync(ev => ev.Title == title, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Event>> GetEventsByCategory(string category, CancellationToken cancellationToken = default)
+    {
+        return await _eventDbContext.Events.Where(ev => ev.Category == category).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Event>> GetEventsByDate(DateTime date, CancellationToken cancellationToken = default)
+    {
+        return await _eventDbContext.Events.Where(ev => ev.EventDate == date).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Event>> GetEventsByDateRange(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        return await _eventDbContext.Events.Where(ev => ev.EventDate >= startDate && ev.EventDate <= endDate).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<Event>> GetEventsByLocation(string location, CancellationToken cancellationToken = default)
+    {
+        return await _eventDbContext.Events.Where(ev => ev.Location == location).ToListAsync(cancellationToken);
     }
 
     public async Task Update(Guid id, Event entity, CancellationToken cancellationToken = default)

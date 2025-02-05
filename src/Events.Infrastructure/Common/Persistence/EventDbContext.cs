@@ -7,11 +7,11 @@ namespace Events.Infrastructure.Common.Persistence;
 
 public class EventDbContext : DbContext, IUnitOfWork
 {
-    public DbSet<User> Users = null!;
-    public DbSet<Event> Events = null!;
-    public DbSet<EventParticipant> EventParticipants = null!;
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Event> Events { get; set; } = null!;
+    public DbSet<EventParticipant> EventParticipants { get; set; } = null!;
 
-    public EventDbContext(DbContextOptions<EventDbContext> options) : base(options)
+    public EventDbContext(DbContextOptions options) : base(options)
     {   
     }
 

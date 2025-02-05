@@ -16,6 +16,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.DateOfBirth).IsRequired();
         builder.Property(user => user.isAdmin).IsRequired();
 
-        builder.HasMany(user => user.EventParticipants).WithOne(ep => ep.User).HasForeignKey(ep => ep.UserId);
+        builder.HasMany(user => user.EventParticipants)
+        .WithOne(ep => ep.User)
+        .HasForeignKey(ep => ep.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

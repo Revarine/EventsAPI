@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.Users.Commands.UpdateUser;
 
-public record UpdateUserCommand(Guid Id, string Username, string Email, string FirstName, string LastName) : IRequest<bool>, IMapFrom<User>;
+public record UpdateUserCommand(Guid Id, string Email, string Password, string Name, string Surname, DateTime DateOfBirth) : IRequest<bool>, IMapFrom<User>;

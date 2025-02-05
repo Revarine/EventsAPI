@@ -14,10 +14,12 @@ public class EventParticipantConfiguration : IEntityTypeConfiguration<EventParti
         
         builder.HasOne(ep => ep.User)
         .WithMany(user => user.EventParticipants)
-        .HasForeignKey(ep => ep.UserId);
+        .HasForeignKey(ep => ep.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ep => ep.Event)
         .WithMany(ev => ev.EventParticipants)
-        .HasForeignKey(ep => ep.EventId);
+        .HasForeignKey(ep => ep.EventId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

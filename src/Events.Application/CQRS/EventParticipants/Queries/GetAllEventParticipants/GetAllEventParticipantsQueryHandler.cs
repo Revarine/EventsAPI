@@ -16,7 +16,7 @@ public class GetAllEventParticipantsQueryHandler : IRequestHandler<GetAllEventPa
     }
     public async Task<IEnumerable<EventParticipantDTO>> Handle(GetAllEventParticipantsQuery request, CancellationToken cancellationToken)
     {
-        var result = await _eventParticipantRepository.GetAll(cancellationToken);
+        var result = await _eventParticipantRepository.GetAll(request.page, request.pageSize, cancellationToken);
         return result.Select(s => _mapper.Map<EventParticipantDTO>(s));
     }
 }

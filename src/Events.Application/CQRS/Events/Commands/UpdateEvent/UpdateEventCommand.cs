@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Events.Application.CQRS.Events.Commands.UpdateEvent;
 
-public record UpdateEventCommand(Guid Id, string Title, string Description, DateTime StartDate, DateTime EndDate, string Location, int MaxParticipants) : IRequest<bool>, IMapFrom<Event>; 
+public record UpdateEventCommand(Guid Id, string Title, string Description, DateTime EventDate, string Location, string Category, int MaxParticipantsCount, string ImageFileName, Guid OrganizerId) : IRequest<bool>, IMapFrom<Event>; 

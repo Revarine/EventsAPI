@@ -25,12 +25,12 @@ public class EventParticipantRepository : IEventParticipantRepository
 
     public async Task<EventParticipant> Get(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.EventParticipants.FirstAsync(ep => ep.Id == id, cancellationToken);
+        return await _eventDbContext.EventParticipants.FirstOrDefaultAsync(ep => ep.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<EventParticipant>> GetAll(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<EventParticipant>> GetAll(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        return await _eventDbContext.EventParticipants.ToListAsync(cancellationToken);
+        return await _eventDbContext.EventParticipants.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<EventParticipant>> GetByEventId(Guid eventId, CancellationToken cancellationToken = default)
