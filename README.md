@@ -22,7 +22,8 @@ EventsAPI/
 ├── Dockerfile
 └── docker-compose.yml
 ```
-
+## Preconfiguring
+adjust `appsettings.json` for full experience, like smtp, db name and etc.
 ## Running Locally
 
 1. Clone the repository:
