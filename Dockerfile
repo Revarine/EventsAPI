@@ -3,6 +3,7 @@ WORKDIR /app
 
 # Copy csproj files and restore dependencies
 COPY *.sln .
+COPY src/Events.API/*.csproj src/Events.API/
 COPY src/Events.Application/*.csproj src/Events.Application/
 COPY src/Events.Domain/*.csproj src/Events.Domain/
 COPY src/Events.Infrastructure/*.csproj src/Events.Infrastructure/
