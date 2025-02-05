@@ -2,7 +2,9 @@ using System.Text;
 using Events.API.Middlewares;
 using Events.Application;
 using Events.Infrastructure;
+using Events.Infrastructure.Common.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +54,13 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Initialize the database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<EventDbContext>();
+    context.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
