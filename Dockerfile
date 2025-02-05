@@ -1,6 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
+# Set NuGet package cache directory
+ENV NUGET_PACKAGES=/app/nuget-packages
+
 # Copy csproj files and restore dependencies
 COPY *.sln .
 COPY src/Events.API/*.csproj src/Events.API/
@@ -8,6 +11,12 @@ COPY src/Events.Application/*.csproj src/Events.Application/
 COPY src/Events.Domain/*.csproj src/Events.Domain/
 COPY src/Events.Infrastructure/*.csproj src/Events.Infrastructure/
 COPY tests/Events.UnitTests/*.csproj tests/Events.UnitTests/
+
+# Create NuGet config
+RUN dotnet new nugetconfig
+RUN dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+
+# Restore packages
 RUN dotnet restore
 
 # Copy the rest of the files and build
@@ -20,6 +29,9 @@ RUN dotnet publish -c Release -o /app/publish --no-build src/Events.API/Events.A
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Create volume for SQLite database
 VOLUME /app/data
