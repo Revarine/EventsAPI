@@ -12,12 +12,8 @@ COPY src/Events.Domain/*.csproj src/Events.Domain/
 COPY src/Events.Infrastructure/*.csproj src/Events.Infrastructure/
 COPY tests/Events.UnitTests/*.csproj tests/Events.UnitTests/
 
-# Create NuGet config
-RUN dotnet new nugetconfig
-RUN dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
-
 # Restore packages
-RUN dotnet restore
+RUN dotnet restore --disable-parallel
 
 # Copy the rest of the files and build
 COPY . .

@@ -3,13 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - NUGET_PACKAGES=/app/nuget-packages
     ports:
       - "5000:80"
     volumes:
       - sqlite-data:/app/data
-      - nuget-packages:/app/nuget-packages
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/Events.db
@@ -24,6 +21,4 @@ services:
 
 volumes:
   sqlite-data:
-    driver: local
-  nuget-packages:
     driver: local 
