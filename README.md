@@ -86,7 +86,6 @@ The API will be available at `http://localhost:5000`.
 - The application runs in a containerized environment
 - SQLite database is persisted using Docker volumes at `/app/data`
 - Environment variables and connection strings are configured in docker-compose.yml
-- Health checks are configured to ensure service availability
 - Container automatically restarts unless explicitly stopped
 
 ### Docker Commands
@@ -135,9 +134,8 @@ docker-compose down -v
 ## Testing
 
 The project includes unit tests for:
-- Domain entities
-- Repositories
-- Application services
+- Domain entity
+- Repository
 
 Run the tests using:
 ```bash
