@@ -136,6 +136,7 @@ docker-compose down -v
 The project includes unit tests for:
 - Domain entity
 - Repository
+- CQRS
 
 Run the tests using:
 ```bash
