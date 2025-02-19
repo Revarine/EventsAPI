@@ -12,6 +12,7 @@ using Events.Application.CQRS.Events.Queries.GetEventsByCategory;
 using Events.Application.CQRS.Events.Queries.GetEventsByDate;
 using Events.Application.CQRS.Events.Queries.GetEventsByDateRange;
 using Events.Application.CQRS.Events.Queries.GetEventsByLocation;
+using Events.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,42 +44,42 @@ public class EventsController : ControllerBase
     public async Task<ActionResult<EventDTO>> Get(Guid id)
     {
         var result = await _mediator.Send(new GetEventQuery(id));
-        if (result == null) return NotFound();
+        if (result == null) throw new NotFoundException("Event", id);
         return Ok(result);
     }
 
     [HttpGet("bytitle/{title}")]
-    public IActionResult GetEventByTitle(string title)
+    public async Task<ActionResult<EventDTO>> GetEventByTitle(string title)
     {
-        var result = _mediator.Send(new GetEventByTitleQuery(title));
+        var result = await _mediator.Send(new GetEventByTitleQuery(title));
         return Ok(result);
     }
 
     [HttpGet("bycategory/{category}")]
-    public IActionResult GetEventsByCategory(string category)
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetEventsByCategory(string category)
     {
-        var result = _mediator.Send(new GetEventsByCategoryQuery(category));
+        var result = await _mediator.Send(new GetEventsByCategoryQuery(category));
         return Ok(result);
     }
 
     [HttpGet("bylocation/{location}")]
-    public IActionResult GetEventsByLocation(string location)
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetEventsByLocation(string location)
     {
-        var result = _mediator.Send(new GetEventsByLocationQuery(location));
+        var result = await _mediator.Send(new GetEventsByLocationQuery(location));
         return Ok(result);
     }
 
     [HttpGet("bydate/{date}")]
-    public IActionResult GetEventsByDate(DateTime date)
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetEventsByDate(DateTime date)
     {
-        var result = _mediator.Send(new GetEventsByDateQuery(date));
+        var result = await _mediator.Send(new GetEventsByDateQuery(date));
         return Ok(result);
     }
 
     [HttpGet("bydaterange")]
-    public IActionResult GetEventsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetEventsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
-        var result = _mediator.Send(new GetEventsByDateRangeQuery(startDate, endDate));
+        var result = await _mediator.Send(new GetEventsByDateRangeQuery(startDate, endDate));
         return Ok(result);
     }
 
@@ -87,7 +88,7 @@ public class EventsController : ControllerBase
     {
         var imagePath = Path.Combine(_environment.WebRootPath, "images", fileName);
         if (!System.IO.File.Exists(imagePath))
-            return NotFound();
+            throw new NotFoundException("Image", fileName);
 
         var lastModified = System.IO.File.GetLastWriteTimeUtc(imagePath);
         var etagValue = $"\"{lastModified.Ticks}\"";
@@ -126,86 +127,94 @@ public class EventsController : ControllerBase
     public async Task<IActionResult> Create([FromForm] CreateEventRequest request)
     {
         string? imageFileName = null;
-        if (request.Image != null)
+        try
         {
-            imageFileName = await SaveImageAsync(request.Image);
+            if (request.Image != null)
+            {
+                imageFileName = await SaveImageAsync(request.Image);
+            }
+
+            var command = new CreateEventCommand(
+                request.Title,
+                request.Description,
+                request.EventDate,
+                request.Location,
+                request.Category,
+                request.MaxParticipants,
+                imageFileName,
+                request.OrganizerId);
+
+            await _mediator.Send(command);
+            return Ok();
         }
-
-        var command = new CreateEventCommand(
-            request.Title,
-            request.Description,
-            request.EventDate,
-            request.Location,
-            request.Category,
-            request.MaxParticipants,
-            imageFileName,
-            request.OrganizerId);
-
-        var result = await _mediator.Send(command);
-        if (!result)
+        catch
         {
             if (imageFileName != null)
                 await DeleteImageAsync(imageFileName);
-            return BadRequest();
+            throw;
         }
-
-        return Ok();
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromForm] UpdateEventRequest request)
     {
         var existingEvent = await _mediator.Send(new GetEventQuery(id));
-        if (existingEvent == null) return NotFound();
+        if (existingEvent == null) throw new NotFoundException("Event", id);
 
         string? imageFileName = null;
-        if (request.Image != null)
+        try
         {
-            imageFileName = await SaveImageAsync(request.Image);
-            if (existingEvent.ImageFileName != null)
-                await DeleteImageAsync(existingEvent.ImageFileName);
-        }
+            if (request.Image != null)
+            {
+                imageFileName = await SaveImageAsync(request.Image);
+            }
 
-        var command = new UpdateEventCommand(
-             id,
-            request.Title,
-            request.Description,
-            request.EventDate,
-            request.Location,
-            request.Category,
-            request.MaxParticipants,
-            imageFileName ?? existingEvent.ImageFileName,
-            request.OrganizerId
+            var command = new UpdateEventCommand(
+                id,
+                request.Title,
+                request.Description,
+                request.EventDate,
+                request.Location,
+                request.Category,
+                request.MaxParticipants,
+                imageFileName ?? existingEvent.ImageFileName,
+                request.OrganizerId
             );
 
-        var result = await _mediator.Send(command);
-        if (!result)
+            await _mediator.Send(command);
+
+            if (imageFileName != null && existingEvent.ImageFileName != null)
+            {
+                await DeleteImageAsync(existingEvent.ImageFileName);
+            }
+
+            var updatedEvent = await _mediator.Send(new GetEventQuery(id));
+            if (updatedEvent != null)
+            {
+                _ = _mediator.Publish(new EventUpdatedNotification(updatedEvent));
+            }
+
+            return Ok();
+        }
+        catch
         {
             if (imageFileName != null)
                 await DeleteImageAsync(imageFileName);
-            return NotFound();
+            throw;
         }
-
-        var updatedEvent = await _mediator.Send(new GetEventQuery(id));
-        if (updatedEvent != null)
-        {
-            _ = _mediator.Publish(new EventUpdatedNotification(updatedEvent));
-        }
-
-        return Ok();
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var existingEvent = await _mediator.Send(new GetEventQuery(id));
-        if (existingEvent == null) return NotFound();
+        if (existingEvent == null) throw new NotFoundException("Event", id);
 
         if (existingEvent.ImageFileName != null)
             await DeleteImageAsync(existingEvent.ImageFileName);
 
         var result = await _mediator.Send(new DeleteEventCommand(id));
-        if (!result) return NotFound();
+        if (!result) throw new NotFoundException("Event", id);
 
         _ = _mediator.Publish(new EventDeletedNotification(existingEvent.Title, id));
 

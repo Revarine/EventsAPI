@@ -6,6 +6,7 @@ using Events.Application.CQRS.EventParticipants.Queries.GetAllEventParticipants;
 using Events.Application.CQRS.EventParticipants.Queries.GetEventParticipant;
 using Events.Application.CQRS.EventParticipants.Queries.GetEventParticipantsByUserId;
 using Events.Application.CQRS.EventParticipants.Queries.GetEventPaticipantsByEventId;
+using Events.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ public class EventParticipantsController : ControllerBase
     public async Task<ActionResult<EventParticipantDTO>> Get(Guid id)
     {
         var result = await _mediator.Send(new GetEventParticipantQuery(id));
-        if (result == null) return NotFound();
+        if (result == null) throw new NotFoundException("EventParticipant", id);
         return Ok(result);
     }
 
@@ -61,8 +62,7 @@ public class EventParticipantsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateEventParticipantCommand command)
     {
-        var result = await _mediator.Send(command);
-        if (!result) return BadRequest();
+        await _mediator.Send(command);
         return Ok();
     }
 
@@ -70,8 +70,7 @@ public class EventParticipantsController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateEventParticipantCommand command)
     {
-        var result = await _mediator.Send(command);
-        if (!result) return NotFound();
+        await _mediator.Send(command);
         return Ok();
     }
 
@@ -80,7 +79,7 @@ public class EventParticipantsController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteEventParticipantCommand(id));
-        if (!result) return NotFound();
+        if (!result) throw new NotFoundException("EventParticipant", id);
         return Ok();
     }
 }

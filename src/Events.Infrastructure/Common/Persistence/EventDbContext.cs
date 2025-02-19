@@ -17,7 +17,7 @@ public class EventDbContext : DbContext, IUnitOfWork
 
     public async Task CommitChangesAsync(CancellationToken cancellationToken = default)
     {
-        await base.SaveChangesAsync();
+        await base.SaveChangesAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

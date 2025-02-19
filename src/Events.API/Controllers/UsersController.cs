@@ -4,6 +4,8 @@ using Events.Application.CQRS.Users.Commands.DeleteUser;
 using Events.Application.CQRS.Users.Commands.UpdateUser;
 using Events.Application.CQRS.Users.Queries.GetAllUsers;
 using Events.Application.CQRS.Users.Queries.GetUser;
+using Events.Domain.Exceptions;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,24 +35,22 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<UserDTO>> Get(Guid id)
     {
         var result = await _mediator.Send(new GetUserQuery(id));
-        if (result == null) return NotFound();
+        if (result == null) throw new NotFoundException("User", id);
         return Ok(result);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserCommand command)
     {
-        var result = await _mediator.Send(command);
-        if (!result) return BadRequest();
+        await _mediator.Send(command);
         return Ok();
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserCommand command)
     {
-        if (id != command.Id) return BadRequest();
-        var result = await _mediator.Send(command);
-        if (!result) return NotFound();
+        if (id != command.Id) throw new ValidationException($"Route id ({id}) does not match command id ({command.Id})");
+        await _mediator.Send(command);
         return Ok();
     }
 
@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _mediator.Send(new DeleteUserCommand(id));
-        if (!result) return NotFound();
+        if (!result) throw new NotFoundException("User", id);
         return Ok();
     }
 }
